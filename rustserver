@@ -78,6 +78,7 @@ fi
 
 STR="${1,,}"
 if [ "$STR" = "install" ] ; then
+	sudo apt-get install screen
 	bash update.sh
 	exit 1
 elif [ "$STR" = "update" ] ; then
