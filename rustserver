@@ -1,0 +1,98 @@
+servername="Rust"
+ip="0.0.0.0"
+port="28015"
+rconport="28016"
+rconpassword="CHANGE_ME"
+maxplayers="50"
+description="Description"
+mapsize="3000"
+saveinterval="300"
+tick="30"
+
+green() {
+	echo -n "$(tput setaf 2)"
+}
+
+cyan() {
+	echo -n "$(tput setaf 6)"
+}
+
+reset() {
+	echo -n "$(tput setaf 7)"
+}
+
+noargs() {
+	cyan
+	echo "No valid arguments given"
+	green
+	echo "./rustserver install"
+	echo "./rustserver update"
+	echo "./rustserver start"
+	echo "./rustserver stop"
+	echo "./rustserver restart"
+	reset
+}
+
+start() {
+	cyan
+	echo "Starting server..."
+	reset
+	screen -d -m -S rustserver bash -c 'exec ./serverfiles/RustDedicated -batchmode -nographics \
+	-server.ip ${ip} \
+	-server.port ${port} \
+	-rcon.ip ${ip} \
+	-rcon.port ${rconport} \
+	-rcon.password ${rconpassword} \
+	+rcon.web 1 \
+	-server.maxplayers ${maxplayers} \
+	-server.hostname ${servername} \
+	-server.identity "rust_server" \
+	-server.level "Procedural Map" \
+	-server.wordldsize ${mapsize} \
+	-server.saveinterval ${saveinterval} \
+	-server.description ${description} \
+	-server.url ${url} \
+	-server.headerimage ${headeriimage}'
+	cyan
+	echo -n "Server started. Would you like to view the console (Y/N)? "
+	reset
+	read console
+	openConsole="${console,,}"
+	if [ "$openConsole" = "y" ] ; then
+		screen -r rustserver
+	else
+		cyan
+		echo "If you want to view the console, type \"screen -r rustserver\""
+		reset
+	fi 
+}
+
+stop() {
+	screen -X -S rustserver quit
+}
+
+if [ -z "$*" ]; then
+	noargs
+	exit 1
+fi
+
+STR="${1,,}"
+if [ "$STR" = "install" ] ; then
+	bash update.sh
+	exit 1
+elif [ "$STR" = "update" ] ; then
+	bash update.sh
+	exit 1
+elif [ "$STR" = "start" ] ; then
+	start
+	exit 1
+elif [ "$STR" = "stop" ] ; then
+	stop
+	exit 1
+elif [ "$STR" = "restart" ] ; then
+	stop
+	start
+	exit 1
+else
+	noargs
+fi
